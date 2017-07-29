@@ -1,0 +1,120 @@
+#!/bin/bash
+
+usage() {
+cat <<EOF
+$(basename $0) usage:
+  general:
+    -h, --help    print this message
+    -t            output tmux status bar format
+    -z            output zsh prompt format
+    -s            WiFi symbol             default: none
+    -d            WiFi network device     default: en0
+    -n            no colors
+  colors:                                                 tmux     zsh
+    -g <color>    connected               default: 1;32 | green  | 64
+    -m <color>    disconnected            default: 1;33 | yellow | 136
+    -w <color>    warn battery level      default: 0;31 | red    | 160
+EOF
+}
+
+apply_color() {
+    if [ $no_colors -eq 1 ]; then
+        return
+    fi
+    case $color_format in
+        t)
+            COLOR="#[fg=$1]"
+            ;;
+        z)
+            COLOR="%F{$1}"
+            ;;
+        d)
+            COLOR="\033[${1}m"
+            ;;
+    esac
+    echo -ne $COLOR
+}
+
+print_symbol() {
+    if [[ -nz $symbol ]]; then
+        echo -n $symbol' '
+    fi
+}
+
+if [[ $1 == '-h' || $1 == '--help' || $1 == '-?' ]]; then
+    usage
+    exit 0
+fi
+
+device=en0
+no_colors=0
+connected_color='1;32'
+disconnected_color='1;33'
+error_color='0;31'
+symbol=''
+default_color=0
+color_format=d
+
+while getopts "d:vtzm:w:g:s:n" opt; do
+    case $opt in
+        d)
+            device=$OPTARG
+            ;;
+        t)
+            color_format=t
+            connected_color=green
+            disconnected_color=grey
+            error_color=red
+            default_color=default
+            ;;
+        z)
+            color_format=z
+            connected_color=64
+            disconnected_color=136
+            error_color=160
+            default_color=0
+            ;;
+        g)
+            connected_color=$OPTARG
+            ;;
+        m)
+            disconnected_color=$OPTARG
+            ;;
+        w)
+            error_color=$OPTARG
+            ;;
+        s)
+            symbol=$OPTARG
+            ;;
+        n)
+            no_colors=1
+            ;;
+        \?)
+            echo "Invalid option: -$OPTARG"
+            exit 1
+            ;;
+        :)
+            echo "Option -$OPTARG requires an argument"
+            exit 1
+            ;;
+    esac
+done
+
+network_info=$(networksetup -getairportnetwork $device)
+
+if [[ $network_info == "Current Wi-Fi Network:"* ]]; then
+    apply_color $connected_color
+    print_symbol
+    echo -n $network_info | awk '{printf "%s",$NF}'
+elif [[ $network_info == *"Wi-Fi power is currently off."*
+        || $network_info == *"You are not associated with an AirPort network."* ]]; then
+    apply_color $disconnected_color
+    print_symbol
+    echo -n 'Disconnected'
+else
+    apply_color $error_color
+    print_symbol
+    echo -n 'Wireless interface not found'
+fi
+apply_color $default_color
+echo ''
