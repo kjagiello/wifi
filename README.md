@@ -46,4 +46,4 @@ set -g status-right "#(wifi -t -g#77d656 -w#d94a4a -m#d7d682) │ #(date +%%T)"
 
 ## "Cool, but I want the battery thingy from the screenshot"
 
-![[Battery](https://github.com/Goles/Battery)](https://user-images.githubusercontent.com/74944/28754971-d705ced2-7550-11e7-8aea-8665265467e2.png)
+[![Battery](https://user-images.githubusercontent.com/74944/28754971-d705ced2-7550-11e7-8aea-8665265467e2.png)](https://github.com/Goles/Battery)
