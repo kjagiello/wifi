@@ -18,7 +18,7 @@ general:
 colors:                                                 tmux     zsh
   -g <color>    connected               default: 1;32 | green  | 64
   -m <color>    disconnected            default: 1;33 | yellow | 136
-  -w <color>    warn battery level      default: 0;31 | red    | 160
+  -w <color>    error                   default: 0;31 | red    | 160
 ```
 
 ## Install
