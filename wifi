@@ -105,7 +105,7 @@ network_info=$(networksetup -getairportnetwork $device)
 if [[ $network_info == "Current Wi-Fi Network:"* ]]; then
     apply_color $connected_color
     print_symbol
-    echo -n $network_info | awk '{printf "%s",$NF}'
+    echo -n $network_info | awk '{n=split($0,x,": ")}{printf x[n]}'
 elif [[ $network_info == *"Wi-Fi power is currently off."*
         || $network_info == *"You are not associated with an AirPort network."* ]]; then
     apply_color $disconnected_color
